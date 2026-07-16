@@ -7,7 +7,7 @@ import threading
 import subprocess
 import queue
 
-# ===================== IMPORTS DOS BACKENDS =====================
+#IMPORTS DOS BACKENDS
 try:
     from estimativas import estimativas_frente_loja
 except Exception:
@@ -19,12 +19,12 @@ except Exception:
     from estimativas import estimativas_acougue
 
 
-# ===================== CONFIG =====================
+#CONFIG
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 
-# ===================== UTIL DATAS =====================
+#UTIL DATAS
 def next_monday(d: date) -> date:
     days_ahead = (0 - d.weekday()) % 7
     return d if days_ahead == 0 else d + timedelta(days=days_ahead)
@@ -37,7 +37,7 @@ def _clamp01(x: float) -> float:
     return max(0.0, min(1.0, float(x)))
 
 
-# ===================== DATEPICKER ESTÁVEL (CTk + Calendar modal) =====================
+#DATEPICKER ESTÁVEL (CTk + Calendar modal)
 class CTkDatePicker(ctk.CTkFrame):
     """
     DatePicker estável para CustomTkinter:
@@ -146,7 +146,7 @@ class CTkDatePicker(ctk.CTkFrame):
                 self._top.destroy()
 
 
-# ===================== ESTADOS (separados por aba) =====================
+#ESTADOS (separados por aba)
 parar_frente = False
 parar_acougue = False
 
@@ -154,7 +154,7 @@ ui_queue_frente = queue.Queue()
 ui_queue_acougue = queue.Queue()
 
 
-# ===================== HELPERS UI (por fila) =====================
+#HELPERS UI (por fila)
 def make_ui_helpers(ui_queue):
     def ui_log(msg: str):
         ui_queue.put(("log", msg))
@@ -207,7 +207,7 @@ def tick_ui():
     janela.after(100, tick_ui)
 
 
-# ===================== LOJAS (persistentes via backend) =====================
+#LOJAS (persistentes via backend)
 def carregar_lojas():
     # usa a frente como “fonte de verdade” do lojas.json
     return estimativas_frente_loja.carregar_lojas()
@@ -224,7 +224,7 @@ def normalizar_nome_loja(s: str) -> str:
     return (s or "").strip()
 
 
-# ===================== CHECKBOXES (separados) =====================
+# CHECKBOXES (separados)
 check_vars_frente = {}
 check_vars_acougue = {}
 
@@ -277,7 +277,7 @@ def desmarcar_todas_acougue():
         var.set(False)
 
 
-# ===================== ABA LOJAS: CRUD =====================
+# ABA LOJAS: CRUD
 def adicionar_loja():
     nome = normalizar_nome_loja(entry_nova_loja.get())
     if not nome:
@@ -347,7 +347,7 @@ def remover_loja():
         rebuild_checkboxes()
 
 
-# ===================== PARAR (separado por aba) =====================
+#PARAR (separado por aba)
 def parar_execucao_frente():
     global parar_frente
     parar_frente = True
@@ -373,7 +373,7 @@ def parar_execucao_acougue():
         ui_log_acougue(f"Erro ao tentar parar os navegadores: {e}")
 
 
-# ===================== REGRAS DE SEGUNDA/DOMINGO (Frente) =====================
+#REGRAS DE SEGUNDA/DOMINGO (Frente)
 def on_change_data_inicial_frente(d: date):
     # força segunda
     if d.weekday() != 0:
@@ -408,7 +408,7 @@ def on_change_data_final_frente(d: date):
         dp_ini_frente.set_date(next_monday(di2), call_on_change=False)
 
 
-# ===================== REGRAS DE SEGUNDA/DOMINGO (Açougue) =====================
+# REGRAS DE SEGUNDA/DOMINGO (Açougue)
 def on_change_data_inicial_acougue(d: date):
     if d.weekday() != 0:
         d2 = next_monday(d)
@@ -438,7 +438,7 @@ def on_change_data_final_acougue(d: date):
         dp_ini_acougue.set_date(next_monday(di2), call_on_change=False)
 
 
-# ===================== EXECUÇÃO: FRENTE DE LOJA =====================
+# EXECUÇÃO: FRENTE DE LOJA
 def iniciar_frente_thread():
     threading.Thread(target=iniciar_frente, daemon=True).start()
 
@@ -495,7 +495,7 @@ def iniciar_frente():
     ui_buttons_frente(False)
 
 
-# ===================== EXECUÇÃO: AÇOUGUE =====================
+#EXECUÇÃO: AÇOUGUE
 def iniciar_acougue_thread():
     threading.Thread(target=iniciar_acougue, daemon=True).start()
 
@@ -552,7 +552,7 @@ def iniciar_acougue():
     ui_buttons_acougue(False)
 
 
-# ===================== UI PRINCIPAL (ABAS) =====================
+# UI PRINCIPAL (ABAS)
 janela = ctk.CTk()
 janela.title("Relatórios - Impress.AI 3.2")
 janela.geometry("1050x880")
@@ -569,7 +569,7 @@ tab_prevencao = tabs.add("Prevenção de Perdas")
 tab_lojas = tabs.add("Lojas")
 
 
-# ===================== ABA: FRENTE DE LOJA =====================
+# ABA: FRENTE DE LOJA
 frame_dados_frente = ctk.CTkFrame(tab_frente)
 frame_dados_frente.pack(pady=10, padx=10, fill="x")
 
@@ -621,7 +621,7 @@ txt_log_frente.insert("end", "Pronto (Frente de Loja).\n")
 txt_log_frente.configure(state="disabled")
 
 
-# ===================== ABA: AÇOUGUE =====================
+#ABA: AÇOUGUE
 frame_dados_acougue = ctk.CTkFrame(tab_acougue)
 frame_dados_acougue.pack(pady=10, padx=10, fill="x")
 
@@ -673,7 +673,7 @@ txt_log_acougue.insert("end", "Pronto (Açougue).\n")
 txt_log_acougue.configure(state="disabled")
 
 
-# ===================== ABA: LOJAS =====================
+#ABA: LOJAS
 frame_gerenciar = ctk.CTkFrame(tab_lojas)
 frame_gerenciar.pack(pady=10, padx=10, fill="x")
 
@@ -703,7 +703,7 @@ ctk.CTkLabel(frame_dica,
              font=("Arial", 12)).pack(anchor="w", padx=10, pady=10)
 
 
-# ===================== INIT =====================
+# INIT
 rebuild_checkboxes()
 janela.after(100, tick_ui)
 janela.mainloop()
